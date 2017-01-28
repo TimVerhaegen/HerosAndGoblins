@@ -1,9 +1,12 @@
-﻿using System;
+﻿using HerosAndGoblins.AI;
+using HerosAndGoblins.Utils;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HerosAndGoblins
 {
@@ -43,15 +46,28 @@ namespace HerosAndGoblins
             Image img = e._currentImage;
             int baseX = e.Bounds.X;
             int baseY = e.Bounds.Y;
-            for (int x = baseX; x < baseX + img.Width; x++)
+            for (int x = 0; x < _currentBitMap.Width; x++)
             {
-                for (int y = baseY; y < baseY + img.Height; y++)
+                for (int y = 0; y < _currentBitMap.Height; y++)
                 {
                     Color c = _currentBitMap.GetPixel(x, y);
-                    if (c.A == 0 && e.Bounds.IntersectsWith(new Rectangle(x, y, 1, 1))) return true;
+                    if (c.A != 255 && Bounds.IntersectsWith(new Rectangle(x + baseX, y + baseY, 1, 1))) return true;
                 }
             }
             return false;
+        }
+
+        internal virtual void Move(int x, int y, Direction dir, Form form)
+        {
+            Rectangle r = Bounds;
+            Direction = dir;
+            for (int i = 0; i < 4; i++)
+            {
+                r.X += x;
+                r.Y += y;
+                Bounds = LocationUtils.GetMovementLocation(r, form);
+                
+            }
         }
     }
 
@@ -61,6 +77,39 @@ namespace HerosAndGoblins
         {
         }
 
+        internal override void Move(int x, int y, Direction dir, Form form)
+        {
+            base.Move(x*2, y*2, dir, form);
+        }
+
+    }
+
+    public class EntityGoblin : Entity, AIBase
+    {
+        public EntityGoblin(Rectangle r, Image[] i) : base(r, i)
+        {
+        }
+
+        public void Execute(EntityCharacter character, Form form)
+        {
+            //ADD FUNCTIONALITY TO SHOOT FIREBALL OR SOMETHING
+        }
+
+        public void ExecuteTick(EntityCharacter character, Form form)
+        {
+            int charX = character.Bounds.X;
+            int charY = character.Bounds.Y;
+            int entX = Bounds.X;
+            int entY = Bounds.Y;
+            int difX = charX - entX;
+            int difY = charY - entY;
+
+            int xToMove = Math.Abs(difX) > Math.Abs(difY) ? difX > 0 ? 1 : -1 : 0;
+            int yToMove = Math.Abs(difY) > Math.Abs(difX) ? difY > 0 ? 1 : -1 : 0;
+
+            Direction dir = xToMove == 1 ? Direction.RIGHT : yToMove == 1 ? Direction.DOWN : xToMove == -1 ? Direction.LEFT : Direction.UP;
+            Move(xToMove, yToMove, dir, form);      
+        }
     }
 
     public interface IDrawable

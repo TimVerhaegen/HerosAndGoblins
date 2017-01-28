@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HerosAndGoblins.AI;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -34,13 +35,24 @@ namespace HerosAndGoblins
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(50, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "SCORE :";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(568, 413);
+            this.ClientSize = new System.Drawing.Size(659, 462);
+            this.Controls.Add(this.label1);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
@@ -49,15 +61,17 @@ namespace HerosAndGoblins
             this.Load += new System.EventHandler(this.OnLoad);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintEntities);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            Console.WriteLine(keyData);
             if (keyData == Keys.Left)
             {
-                MoveCharacter(-1,0, Direction.LEFT);
+                MoveCharacter(-1, 0, Direction.LEFT);
             }
             if (keyData == Keys.Up)
             {
@@ -71,6 +85,7 @@ namespace HerosAndGoblins
             {
                 MoveCharacter(0, 1, Direction.DOWN);
             }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -83,22 +98,18 @@ namespace HerosAndGoblins
             }
         }
 
+        
+
         public void MoveCharacter(int x, int y, Direction dir)
         {
-            foreach(EntityCharacter ent in entities)
+            foreach(Entity ent in entities)
             {
-                Rectangle r = ent.Bounds;
-                ent.Direction = dir;
-                for (int i = 0; i < 4; i++)
-                {
-                    r.X += x;
-                    r.Y += y;
-                    ent.Bounds = r;
-                }
+                if(ent is EntityCharacter) ent.Move(x, y, dir, this);
             }
         }
         #endregion
 
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private Label label1;
     }
 }
